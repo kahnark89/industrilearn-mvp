@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndustriLearn Enterprise - Advanced Maintenance Training Platform</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+    <style>
+        /* CSS Reset and Font Import */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-600: #2563eb; --primary-700: #1d4ed8; --primary-800: #1e40af; --primary-900: #1e3a8a;
+            --secondary-500: #06b6d4; --secondary-600: #0891b2;
+            --success-500: #10b981; --success-600: #059669;
+            --warning-500: #f59e0b; --warning-600: #d97706;
+            --danger-500: #ef4444; --danger-600: #dc2626;
+            --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db; --gray-400: #9ca3af; --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151; --gray-800: #1f2937; --gray-900: #111827;
+            --white: #ffffff; --black: #000000;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05); --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            
+            --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --backdrop-blur: blur(16px);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--gray-900);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        input, button, textarea, select { font: inherit; }
+        button { cursor: pointer; }
+        img, picture, video, canvas, svg { display: block; max-width: 100%; }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.7s ease, visibility 0.7s ease;
+        }
+        .loading-screen.hidden { opacity: 0; visibility: hidden; }
+        .loading-container { text-align: center; }
+        .loading-logo {
+            width: 120px; height: 120px; background: var(--glass-bg); backdrop-filter: var(--backdrop-blur);
+            border: 2px solid var(--glass-border); border-radius: 24px; display: flex; align-items: center; justify-content: center;
+            font-size: 48px; margin: 0 auto 32px; animation: pulse-glow 2s ease-in-out infinite; box-shadow: var(--shadow-2xl);
+        }
+        @keyframes pulse-glow { 0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(102, 126, 234, 0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(102, 126, 234, 0.6); } }
+        .loading-title { color: var(--white); font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+        .loading-subtitle { color: rgba(255, 255, 255, 0.8); font-size: 16px; margin-bottom: 48px; }
+        .loading-progress { width: 300px; height: 6px; background: rgba(255, 255, 255, 0.2); border-radius: 3px; overflow: hidden; margin: 0 auto; }
+        .loading-progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary-600), var(--secondary-500)); width: 0%; transition: width 0.3s ease; border-radius: 3px; }
+
+        /* Authentication System */
+        .auth-container {
+            display: none; min-height: 100vh; padding: 20px; align-items: center; justify-content: center;
+        }
+        .auth-card {
+            background: var(--glass-bg); backdrop-filter: var(--backdrop-blur); border: 1px solid var(--glass-border);
+            border-radius: 24px; padding: 48px; width: 100%; max-width: 500px; box-shadow: var(--shadow-2xl);
+            animation: slideUpFade 0.6s ease;
+        }
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .auth-header { text-align: center; margin-bottom: 40px; }
+        .auth-logo {
+            width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary-600), var(--secondary-500));
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 24px; font-size: 36px; color: var(--white); box-shadow: var(--shadow-xl);
+        }
+        .auth-title { font-size: 32px; font-weight: 800; color: var(--white); margin-bottom: 8px; }
+        .auth-subtitle { color: rgba(255, 255, 255, 0.8); font-size: 16px; }
+        .form-group { margin-bottom: 24px; }
+        .form-label { display: block; color: var(--white); font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+        .form-input {
+            width: 100%; padding: 16px 20px; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px; color: var(--white); font-size: 16px; transition: all 0.3s ease; backdrop-filter: var(--backdrop-blur);
+        }
+        .form-input::placeholder { color: rgba(255, 255, 255, 0.6); }
+        .form-input:focus { outline: none; border-color: var(--primary-600); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2); background: rgba(255, 255, 255, 0.15); }
+        .auth-error { color: var(--warning-500); background: rgba(217, 119, 6, 0.1); border: 1px solid var(--warning-600); padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 14px; text-align: center; display: none; }
+        
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 32px; border: none;
+            border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none;
+            text-align: center; position: relative; overflow: hidden; white-space: nowrap; width: 100%;
+        }
+        .btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s ease; }
+        .btn:hover::before { left: 100%; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary-600), var(--secondary-500)); color: var(--white); box-shadow: var(--shadow-lg); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-xl); }
+        .demo-credentials { margin-top: 32px; padding: 20px; background: rgba(255, 255, 255, 0.1); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .demo-title { font-weight: 700; color: var(--white); margin-bottom: 12px; font-size: 16px; }
+        .demo-account { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .demo-account:last-child { border-bottom: none; }
+        .demo-info { font-size: 14px; color: rgba(255, 255, 255, 0.9); }
+        .demo-login-btn { padding: 4px 12px; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 6px; color: var(--white); font-size: 12px; transition: all 0.2s ease; }
+        .demo-login-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+        /* Main Application Layout */
+        .app-container { display: none; min-height: 100vh; background: var(--gray-50); }
+        .app-header { background: var(--white); border-bottom: 1px solid var(--gray-200); box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; }
+        .header-content { max-width: 1600px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+        .header-brand { display: flex; align-items: center; gap: 12px; }
+        .brand-logo { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-600), var(--secondary-500)); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 20px; font-weight: 700; }
+        .brand-text { font-size: 20px; font-weight: 800; color: var(--gray-900); }
+        .header-user { display: flex; align-items: center; gap: 16px; position: relative; }
+        .user-profile { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 8px; border-radius: 12px; transition: all 0.2s ease; }
+        .user-profile:hover { background: var(--gray-100); }
+        .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--success-500), var(--secondary-500)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--white); font-weight: 600; font-size: 14px; }
+        .user-info { text-align: right; }
+        .user-name { font-size: 14px; font-weight: 600; color: var(--gray-900); }
+        .user-role { font-size: 12px; color: var(--gray-500); }
+        .user-menu { position: absolute; top: calc(100% + 12px); right: 0; background: var(--white); border-radius: 12px; box-shadow: var(--shadow-lg); border: 1px solid var(--gray-200); width: 200px; list-style: none; z-index: 110; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s ease; }
+        .user-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
+        .user-menu-item a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--gray-700); text-decoration: none; font-size: 14px; }
+        .user-menu-item a:hover { background: var(--gray-100); color: var(--primary-600); }
+        .user-menu-item a .icon { width: 20px; text-align: center; }
+        .user-menu-item.divider { border-top: 1px solid var(--gray-200); margin: 4px 0; }
+
+        /* Main Layout */
+        .app-layout { display: flex; min-height: calc(100vh - 64px); max-width: 1600px; margin: 0 auto; }
+        .sidebar { width: 260px; background: var(--white); border-right: 1px solid var(--gray-200); padding: 24px 0; transition: width 0.3s ease; }
+        .sidebar-section { margin-bottom: 24px; }
+        .sidebar-title { font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.5px; padding: 0 24px; margin-bottom: 8px; }
+        .sidebar-menu { list-style: none; }
+        .sidebar-link { display: flex; align-items: center; gap: 16px; padding: 12px 24px; color: var(--gray-700); text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s ease; position: relative; border-left: 4px solid transparent; }
+        .sidebar-link:hover { background: var(--gray-100); color: var(--primary-600); }
+        .sidebar-link.active { color: var(--primary-600); font-weight: 600; background: linear-gradient(90deg, rgba(37, 99, 235, 0.08), transparent); border-left-color: var(--primary-600); }
+        .sidebar-icon { font-size: 20px; width: 24px; text-align: center; }
+
+        /* Main Content Area */
+        .main-content { flex: 1; padding: 32px; overflow-y: auto; background: var(--gray-50); }
+        .main-view { display: none; }
+        .main-view.active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .content-header { margin-bottom: 32px; }
+        .page-title { font-size: 32px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+        .page-subtitle { font-size: 16px; color: var(--gray-600); }
+
+        /* Dashboard Cards */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .stat-card { background: var(--white); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); border: 1px solid var(--gray-200); transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .stat-title { font-size: 14px; font-weight: 600; color: var(--gray-600); }
+        .stat-icon { font-size: 24px; padding: 12px; border-radius: 12px; color: var(--white); }
+        .stat-icon.primary { background: var(--primary-600); }
+        .stat-icon.success { background: var(--success-600); }
+        .stat-icon.warning { background: var(--warning-600); }
+        .stat-value { font-size: 36px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+        .stat-description { font-size: 14px; color: var(--gray-500); }
+
+        /* Training Modules List */
+        .training-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+        .module-card {
+            background: var(--white); border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--gray-200);
+            display: flex; flex-direction: column; transition: all 0.3s ease; text-decoration: none; color: inherit;
+        }
+        .module-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .module-card-banner { height: 160px; background-size: cover; background-position: center; border-radius: 16px 16px 0 0; }
+        .module-card-content { padding: 24px; flex-grow: 1; display: flex; flex-direction: column; }
+        .module-category { font-size: 12px; font-weight: 600; color: var(--primary-600); margin-bottom: 8px; text-transform: uppercase; }
+        .module-title { font-size: 20px; font-weight: 700; color: var(--gray-900); margin-bottom: 12px; flex-grow: 1; }
+        .module-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--gray-200); padding-top: 16px; margin-top: 16px; }
+        .module-status { font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+        .status-icon { font-size: 20px; }
+        .status-completed { color: var(--success-600); }
+        .status-inprogress { color: var(--warning-600); }
+        .module-action { font-weight: 600; color: var(--primary-700); }
+
+        /* Module Content View */
+        .module-content-view { max-width: 900px; margin: 0 auto; }
+        .module-content-header { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--gray-200); }
+        .back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--gray-600); text-decoration: none; font-weight: 500; margin-bottom: 16px; transition: color 0.2s ease; }
+        .back-link:hover { color: var(--primary-600); }
+        .module-content-body { background: var(--white); border-radius: 16px; padding: 32px; box-shadow: var(--shadow); border: 1px solid var(--gray-200); }
+        .module-content-body h3 { font-size: 24px; font-weight: 700; color: var(--gray-900); margin-bottom: 24px; }
+        .module-content-body p { margin-bottom: 16px; line-height: 1.7; color: var(--gray-700); }
+        .module-content-body .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 12px; margin-bottom: 24px; }
+        .module-content-body .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+    </style>
+</head>
+<body>
+
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-container">
+            <div class="loading-logo">⚙️</div>
+            <h1 class="loading-title">IndustriLearn Enterprise</h1>
+            <p class="loading-subtitle">Initializing Advanced Maintenance Training Platform...</p>
+            <div class="loading-progress">
+                <div class="loading-progress-bar" id="loading-progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-container" id="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">⚙️</div>
+                <h1 class="auth-title">Welcome Back</h1>
+                <p class="auth-subtitle">Sign in to access your training dashboard.</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" class="form-input" placeholder="e.g., operator_j_doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="••••••••••••" required>
+                </div>
+                <div class="auth-error" id="auth-error">Invalid credentials. Please try again.</div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 16px;">
+                    <span class="icon">🔑</span> Sign In
+                </button>
+            </form>
+            <div class="demo-credentials">
+                <h3 class="demo-title">Quick Access Demo Accounts</h3>
+                <div class="demo-account">
+                    <div class="demo-info"><strong>Role:</strong> Extruder Operator</div>
+                    <button class="demo-login-btn" data-user="extruder_op">Login</button>
+                </div>
+                <div class="demo-account">
+                    <div class="demo-info"><strong>Role:</strong> Manager</div>
+                    <button class="demo-login-btn" data-user="manager">Login</button>
+                </div>
+                <div class="demo-account">
+                    <div class="demo-info"><strong>Role:</strong> Admin</div>
+                    <button class="demo-login-btn" data-user="admin">Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container" id="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-brand">
+                    <div class="brand-logo">⚙️</div>
+                    <div>
+                         <div class="brand-text">IndustriLearn</div>
+                    </div>
+                </div>
+                <div class="header-user">
+                    <div class="user-profile" id="user-profile-button">
+                        <div class="user-info">
+                            <div class="user-name" id="user-name">John Doe</div>
+                            <div class="user-role" id="user-role">Technician</div>
+                        </div>
+                        <div class="user-avatar" id="user-avatar">JD</div>
+                    </div>
+                    <ul class="user-menu" id="user-menu">
+                        <li class="user-menu-item"><a href="#"><span class="icon">👤</span> My Profile</a></li>
+                        <li class="user-menu-item"><a href="#"><span class="icon">⚙️</span> Settings</a></li>
+                        <li class="user-menu-item divider"></li>
+                        <li class="user-menu-item"><a href="#" id="logout-button"><span class="icon">🚪</span> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+        <div class="app-layout">
+            <nav class="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Menu</h3>
+                    <ul class="sidebar-menu">
+                        <li class="sidebar-item"><a href="#" class="sidebar-link active" data-view="dashboard"><span class="sidebar-icon">📊</span> Dashboard</a></li>
+                        <li class="sidebar-item"><a href="#" class="sidebar-link" data-view="training"><span class="sidebar-icon">🎓</span> Training Modules</a></li>
+                        <li class="sidebar-item"><a href="#" class="sidebar-link" data-view="equipment"><span class="sidebar-icon">🔩</span> Equipment Manuals</a></li>
+                    </ul>
+                </div>
+                 <div class="sidebar-section admin-only" style="display: none;">
+                    <h3 class="sidebar-title">Administration</h3>
+                    <ul class="sidebar-menu">
+                        <li class="sidebar-item"><a href="#" class="sidebar-link" data-view="users"><span class="sidebar-icon">👥</span> User Management</a></li>
+                        <li class="sidebar-item"><a href="#" class="sidebar-link" data-view="analytics"><span class="sidebar-icon">📈</span> Analytics</a></li>
+                    </ul>
+                </div>
+            </nav>
+            <main class="main-content">
+                <div id="dashboard-view" class="main-view active"></div>
+                <div id="training-view" class="main-view"></div>
+                <div id="equipment-view" class="main-view">
+                     <div class="content-header">
+                        <h1 class="page-title">Equipment Manuals</h1>
+                        <p class="page-subtitle">Access technical documentation for plant machinery.</p>
+                    </div>
+                    <p>This feature is coming soon.</p>
+                </div>
+                 <div id="users-view" class="main-view admin-only">
+                     <div class="content-header">
+                        <h1 class="page-title">User Management</h1>
+                        <p class="page-subtitle">Manage user accounts and roles.</p>
+                    </div>
+                    <p>This feature is coming soon.</p>
+                </div>
+                <div id="analytics-view" class="main-view admin-only">
+                     <div class="content-header">
+                        <h1 class="page-title">Analytics</h1>
+                        <p class="page-subtitle">Review training progress and platform usage.</p>
+                    </div>
+                    <p>This feature is coming soon.</p>
+                </div>
+                <div id="module-content-view" class="main-view"></div>
+            </main>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- SIMULATED BACKEND/DATABASE ---
+    const db = {
+        users: {
+            "extruder_op": { name: "Operator", role: "Extruder Operator", password: "password123", initials: "OP" },
+            "manager": { name: "Kayla Capps", role: "Production Manager", password: "password123", initials: "KC" },
+            "admin": { name: "System Admin", role: "Administrator", password: "password123", initials: "SA" }
+        },
+        trainingModules: [
+            { id: 1, title: "Single-Screw Extruder Safety Procedures", category: "Safety", description: "Essential safety protocols for operating the 6\" single-screw extruder.", banner: 'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyNjA3fDB8MXxjb2xsZWN0aW9ufDE0OTQyNjc0fHx8fHwyfHwxNjM5NjA0NzE2&ixlib=rb-1.2.1&q=80&w=400', 
+              content: {
+                summary: "This module covers critical safety checks, emergency stop procedures, and proper personal protective equipment (PPE) for working with the extruder.",
+                video: "https://www.youtube.com/embed/stb8941eR40" // Placeholder video
+              }},
+            { id: 2, title: "Breaker Plate & Screen Pack Changeout", category: "Extrusion", description: "A step-by-step guide to safely changing the breaker plate and screen pack.", banner: 'https://images.unsplash.com/photo-1621999933580-1a1a70c48e4a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyNjA3fDB8MXxjb2xsZWN0aW9ufDE0OTQyNjc0fHx8fHwyfHwxNjM5NjA0NzE2&ixlib=rb-1.2.1&q=80&w=400',
+              content: {
+                summary: "Learn the correct procedure for using the hydraulic piston ram to swap cartridge-style breaker plates, ensuring minimal downtime and preventing leaks. This includes managing the 2 heat zones on the changer body.",
+              }},
+            { id: 3, title: "Die and Cone Maintenance for PVC Sheeting", category: "Extrusion", description: "Learn to properly clean and maintain the 80\" coat hanger die and cone.", banner: 'https://images.unsplash.com/photo-1581092448348-52cde2d07022?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyNjA3fDB8MXxjb2xsZWN0aW9ufDE0OTQyNjc0fHx8fHwyfHwxNjM5NjA0NzE2&ixlib=rb-1.2.1&q=80&w=400',
+               content: {
+                summary: "This module details the process for inspecting, cleaning, and re-installing the die and cone assembly, which is critical for maintaining sheet quality and preventing material leaks.",
+              }},
+            { id: 4, title: "Barrel Heater Zone Calibration", category: "Maintenance", description: "Understand how to diagnose and calibrate the 8 barrel heater zones.", banner: 'https://images.unsplash.com/photo-1621905252039-953d19f42b36?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyNjA3fDB8MXxjb2xsZWN0aW9ufDE0OTQyNjc0fHx8fHwyfHwxNjM5NjA0NzE2&ixlib=rb-1.2.1&q=80&w=400',
+               content: {
+                summary: "Proper heat profile is key to quality extrusion. This module covers troubleshooting common heating issues across the 15' barrel and ensuring each of the 8 zones is within spec.",
+              }},
+        ],
+        userProgress: {
+            "extruder_op": [1, 3],
+            "manager": [1, 2, 3, 4],
+            "admin": []
+        }
+    };
+
+    // --- APPLICATION STATE ---
+    const appState = {
+        currentUser: null,
+        currentView: 'dashboard'
+    };
+
+    // --- DOM SELECTORS ---
+    const DOMElements = {
+        loadingScreen: document.getElementById('loading-screen'),
+        loadingProgressBar: document.getElementById('loading-progress-bar'),
+        authContainer: document.getElementById('auth-container'),
+        appContainer: document.getElementById('app-container'),
+        loginForm: document.getElementById('login-form'),
+        usernameInput: document.getElementById('username'),
+        passwordInput: document.getElementById('password'),
+        authError: document.getElementById('auth-error'),
+        demoButtons: document.querySelectorAll('.demo-login-btn'),
+        userNameDisplay: document.getElementById('user-name'),
+        userRoleDisplay: document.getElementById('user-role'),
+        userAvatarDisplay: document.getElementById('user-avatar'),
+        userProfileButton: document.getElementById('user-profile-button'),
+        userMenu: document.getElementById('user-menu'),
+        logoutButton: document.getElementById('logout-button'),
+        sidebarLinks: document.querySelectorAll('.sidebar-link'),
+        mainViews: document.querySelectorAll('.main-view'),
+        adminOnlyElements: document.querySelectorAll('.admin-only')
+    };
+    
+    // --- UI RENDERING ---
+    const UIRenderer = {
+        showView(viewId) {
+            appState.currentView = viewId;
+            DOMElements.mainViews.forEach(view => {
+                view.classList.remove('active');
+                if (view.id === `${viewId}-view`) {
+                    view.classList.add('active');
+                }
+            });
+            DOMElements.sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.view === viewId) {
+                    link.classList.add('active');
+                }
+            });
+        },
+        
+        updateUserInfo(user) {
+            DOMElements.userNameDisplay.textContent = user.name;
+            DOMElements.userRoleDisplay.textContent = user.role;
+            DOMElements.userAvatarDisplay.textContent = user.initials;
+        },
+
+        renderDashboard() {
+            const userProgress = db.userProgress[appState.currentUser] || [];
+            const completedCount = userProgress.length;
+            const totalCount = db.trainingModules.length;
+            const pendingCount = totalCount - completedCount;
+            const completionRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+            const view = document.getElementById('dashboard-view');
+            view.innerHTML = `
+                <div class="content-header">
+                    <h1 class="page-title">Welcome, ${db.users[appState.currentUser].name}</h1>
+                    <p class="page-subtitle">Here is your training summary and assigned tasks.</p>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">Courses Completed</div>
+                            <div class="stat-icon success">🎓</div>
+                        </div>
+                        <div class="stat-value">${completedCount}</div>
+                        <div class="stat-description">Out of ${totalCount} available</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">Pending Courses</div>
+                            <div class="stat-icon warning">📚</div>
+                        </div>
+                        <div class="stat-value">${pendingCount}</div>
+                        <div class="stat-description">Keep up the great work!</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">Completion Rate</div>
+                            <div class="stat-icon primary">🎯</div>
+                        </div>
+                        <div class="stat-value">${completionRate}%</div>
+                        <div class="stat-description">Overall training progress</div>
+                    </div>
+                </div>
+            `;
+        },
+
+        renderTrainingModules() {
+            const view = document.getElementById('training-view');
+            const userProgress = db.userProgress[appState.currentUser] || [];
+            
+            let modulesHTML = db.trainingModules.map(module => {
+                const isCompleted = userProgress.includes(module.id);
+                return `
+                    <a href="#" class="module-card" data-module-id="${module.id}">
+                        <div class="module-card-banner" style="background-image: url('${module.banner}')"></div>
+                        <div class="module-card-content">
+                            <div class="module-category">${module.category}</div>
+                            <h3 class="module-title">${module.title}</h3>
+                            <div class="module-footer">
+                                <div class="module-status ${isCompleted ? 'status-completed' : 'status-inprogress'}">
+                                    <span class="status-icon">${isCompleted ? '✔️' : '📖'}</span>
+                                    <span>${isCompleted ? 'Completed' : 'View Module'}</span>
+                                </div>
+                                <div class="module-action">→</div>
+                            </div>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+
+            view.innerHTML = `
+                <div class="content-header">
+                    <h1 class="page-title">Training Modules</h1>
+                    <p class="page-subtitle">Select a module to begin your training.</p>
+                </div>
+                <div class="training-grid">${modulesHTML}</div>
+            `;
+        },
+
+        renderModuleContent(moduleId) {
+            const module = db.trainingModules.find(m => m.id === moduleId);
+            const view = document.getElementById('module-content-view');
+
+            let videoHTML = '';
+            if (module.content.video) {
+                videoHTML = `
+                    <div class="video-container">
+                        <iframe src="${module.content.video}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                `;
+            }
+
+            view.innerHTML = `
+                <div class="module-content-header">
+                     <a href="#" class="back-link" id="back-to-training">← Back to Modules</a>
+                     <h1 class="page-title">${module.title}</h1>
+                     <p class="page-subtitle">${module.description}</p>
+                </div>
+                <div class="module-content-body">
+                    ${videoHTML}
+                    <h3>Module Overview</h3>
+                    <p>${module.content.summary}</p>
+                </div>
+            `;
+            this.showView('module-content');
+        }
+    };
+
+    // --- APP LOGIC & EVENT HANDLERS ---
+    const App = {
+        init() {
+            this.setupEventListeners();
+            this.runLoadingSequence();
+        },
+
+        runLoadingSequence() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 25;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        DOMElements.loadingScreen.classList.add('hidden');
+                        DOMElements.authContainer.style.display = 'flex';
+                    }, 500);
+                }
+                DOMElements.loadingProgressBar.style.width = progress + '%';
+            }, 300);
+        },
+
+        setupEventListeners() {
+            DOMElements.loginForm.addEventListener('submit', this.handleLogin.bind(this));
+            DOMElements.demoButtons.forEach(btn => {
+                btn.addEventListener('click', this.handleDemoLogin.bind(this));
+            });
+            DOMElements.logoutButton.addEventListener('click', this.handleLogout.bind(this));
+            DOMElements.userProfileButton.addEventListener('click', () => {
+                 DOMElements.userMenu.classList.toggle('active');
+            });
+            document.addEventListener('click', (e) => {
+                if (!DOMElements.headerUser.contains(e.target)) {
+                    DOMElements.userMenu.classList.remove('active');
+                }
+            });
+            DOMElements.sidebarLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    UIRenderer.showView(link.dataset.view);
+                });
+            });
+            // Event delegation for dynamically created content
+            document.body.addEventListener('click', (e) => {
+                const moduleCard = e.target.closest('.module-card');
+                if (moduleCard) {
+                    e.preventDefault();
+                    const moduleId = parseInt(moduleCard.dataset.moduleId);
+                    UIRenderer.renderModuleContent(moduleId);
+                }
+                if (e.target.id === 'back-to-training') {
+                    e.preventDefault();
+                    UIRenderer.showView('training');
+                }
+            });
+        },
+
+        handleLogin(e) {
+            e.preventDefault();
+            const username = DOMElements.usernameInput.value.trim();
+            const password = DOMElements.passwordInput.value.trim();
+            const user = db.users[username];
+
+            if (user && user.password === password) {
+                this.startSession(username);
+            } else {
+                DOMElements.authError.style.display = 'block';
+            }
+        },
+        
+        handleDemoLogin(e) {
+            const username = e.target.dataset.user;
+            DOMElements.usernameInput.value = username;
+            DOMElements.passwordInput.value = db.users[username].password;
+            this.startSession(username);
+        },
+
+        startSession(username) {
+            appState.currentUser = username;
+            const user = db.users[username];
+
+            // Show/hide admin sections
+            DOMElements.adminOnlyElements.forEach(el => {
+                el.style.display = user.role === 'Administrator' ? 'block' : 'none';
+            });
+            
+            UIRenderer.updateUserInfo(user);
+            UIRenderer.renderDashboard();
+            UIRenderer.renderTrainingModules();
+            UIRenderer.showView('dashboard');
+            
+            DOMElements.authContainer.style.display = 'none';
+            DOMElements.appContainer.style.display = 'block';
+        },
+        
+        handleLogout(e) {
+            e.preventDefault();
+            appState.currentUser = null;
+            appState.currentView = 'dashboard';
+
+            DOMElements.loginForm.reset();
+            DOMElements.authError.style.display = 'none';
+            
+            DOMElements.appContainer.style.display = 'none';
+            DOMElements.authContainer.style.display = 'flex';
+            DOMElements.userMenu.classList.remove('active');
+        }
+    };
+
+    App.init();
+});
+</script>
+</body>
+</html>
