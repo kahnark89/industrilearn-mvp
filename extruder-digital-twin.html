@@ -275,19 +275,11 @@
 
 <div id="hint">Drag · Scroll · Right-click pan</div>
 
-<!-- ─────────────── Three.js (ES module via importmap) ─────────────── -->
-<script type="importmap">
-{
-    "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
-    }
-}
-</script>
+<!-- ─────────────── Three.js (global CDN — works with file://) ─────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
 
-<script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+<script>
 
 // ═══════════════════════════════════════════════════════════════
 // STATE
@@ -350,7 +342,7 @@ scene.fog = new THREE.FogExp2(0x060b14, 0.028);
 const camera = new THREE.PerspectiveCamera(48, 1, 0.05, 300);
 camera.position.set(6, 5, 14);
 
-const controls = new OrbitControls(camera, renderer.domElement);
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
 controls.target.set(2, 0, 0);
