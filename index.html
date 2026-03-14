@@ -104,6 +104,13 @@
             background-color: var(--gray-700);
             background-size: cover;
             background-position: center;
+            position: relative;
+        }
+        .badge-3d {
+            position: absolute; top: 10px; right: 10px;
+            background: #1d4ed8; color: #fff;
+            font-size: 10px; font-weight: 700; letter-spacing: 1px;
+            padding: 3px 8px; border-radius: 4px; text-transform: uppercase;
         }
         .module-card-content {
             padding: 24px;
@@ -257,13 +264,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 summary: "A correct heat profile is key to quality extrusion. This module covers troubleshooting common heating issues across the 15-foot barrel and ensuring each of the 8 zones is within temperature specification."
             }
         },
-        { 
-            id: 5, 
-            title: "Flexible Lip Adjustment for Thickness Control", 
-            category: "Quality Control", 
+        {
+            id: 5,
+            title: "Flexible Lip Adjustment for Thickness Control",
+            category: "Quality Control",
             banner: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=60',
             content: {
                 summary: "Learn the technique for using the adjusting screws (spaced 1-inch apart) on the flexible die lip to control the final thickness profile of the PVC sheet, ensuring it meets the 15-25 mil specification."
+            }
+        },
+        {
+            id: 6,
+            title: "LE01 — 3D Extruder Digital Twin",
+            category: "Interactive Tool",
+            banner: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=800&q=60',
+            externalLink: 'extruder-digital-twin.html',
+            content: {
+                summary: "Explore an interactive 3D digital twin of the LE01 Johnson Plastics extrusion line. Adjust all 20 temperature zones, motor RPM, and amperage in real time and watch the 3D model react — color-coded heat zones, rotating screw, and live gauges."
             }
         }
     ];
@@ -285,7 +302,9 @@ document.addEventListener('DOMContentLoaded', () => {
             card.className = 'module-card';
             card.dataset.moduleId = module.id; // Set data attribute to identify the module
             card.innerHTML = `
-                <div class="module-card-banner" style="background-image: url('${module.banner}')"></div>
+                <div class="module-card-banner" style="background-image: url('${module.banner}')">
+                    ${module.externalLink ? '<div class="badge-3d">&#x25B6; Interactive 3D</div>' : ''}
+                </div>
                 <div class="module-card-content">
                     <div class="module-category">${module.category}</div>
                     <h3 class="module-title">${module.title}</h3>
@@ -350,7 +369,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = e.target.closest('.module-card');
         if (card) {
             const moduleId = parseInt(card.dataset.moduleId);
-            renderModuleDetail(moduleId);
+            const module = trainingModules.find(m => m.id === moduleId);
+            if (module && module.externalLink) {
+                window.location.href = module.externalLink;
+            } else {
+                renderModuleDetail(moduleId);
+            }
         }
     });
 
